@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MyTripTracker.BackService.Data;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace MyTripTracker.BackService
@@ -30,8 +32,10 @@ namespace MyTripTracker.BackService
             // scoped: created only once per each http request.
             // transient: every time this is requested, create a new one.
             // singleton: created once and only once.
-            services.AddTransient<Models.Repository>();
+
+            // services.AddTransient<Models.Repository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddDbContext<TripContext>(options => options.UseSqlite("Data Source=SomeCoolTrips.db"));
             services.AddSwaggerGen(options =>
             options.SwaggerDoc("v1", new Info { Title = "Trip Tracker", Version = "v1" }
                               )
@@ -60,6 +64,7 @@ namespace MyTripTracker.BackService
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            TripContext.SeedData(app.ApplicationServices);
         }
     }
 }
